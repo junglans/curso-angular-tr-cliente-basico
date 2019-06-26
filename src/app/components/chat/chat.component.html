@@ -1,0 +1,4 @@
+<h1>Mensajes</h1>
+<form (ngSubmit)="sendMessage()">
+    <input *ngIf="_connected" type="text" name="text" [(ngModel)]="text" class="form-control" placeholder="Mensaje...." autofocus autocomplete="off">
+</form>

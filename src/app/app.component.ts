@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { WebsocketService } from './services/websocket.service';
-import { ChatService } from './services/chat.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -9,20 +8,10 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent {
   
   title = 'cliente-basico';
   private _subscription: Subscription;
-  constructor( private wsService: WebsocketService, private chatService: ChatService) {}
+  constructor( private wsService: WebsocketService) {}
 
-  ngOnInit(): void { 
-    this._subscription = this.wsService.subject.subscribe((connected : Boolean) =>{ 
-      console.log(`AppComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${connected}`) 
-      if (connected) {
-         console.log('AppComponent> Enviando mensaje...');
-         this.chatService.sendMessage('¡¡Hola Mundo!!');
-      }
-   });
-   
-  }
 }
