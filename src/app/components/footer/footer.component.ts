@@ -20,7 +20,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
      this._connected = this.wsService.connected;
      this._subscription = this.wsService.subject.subscribe((connected : Boolean) =>{ 
-       console.log(`Recibido evento de conexión/deconexión del servidor. Conectado :${connected}`)
+       console.log(`FooterComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${connected}`)
        this._connected = connected
     });
   }
