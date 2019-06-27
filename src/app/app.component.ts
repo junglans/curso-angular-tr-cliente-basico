@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { WebsocketService } from './services/websocket.service';
 import { Subscription } from 'rxjs';
+import { TopicService } from './services/topic.service';
 
 @Component({
   selector: 'app-root',
@@ -8,10 +9,21 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+  
+ 
   
   title = 'cliente-basico';
   private _subscription: Subscription;
-  constructor( private wsService: WebsocketService) {}
+  constructor( private wsService: WebsocketService, private topicService: TopicService) {}
 
+  ngOnInit(): void {
+  
+      this.topicService.createTopic('SERVER_STATUS');
+      
+  }
+
+  ngOnDestroy(): void {
+    this.topicService.clearAll();
+  }
 }

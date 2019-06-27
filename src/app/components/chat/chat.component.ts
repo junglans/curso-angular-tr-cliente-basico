@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChatService } from 'src/app/services/chat.service';
 import { Subscription } from 'rxjs';
-import { WebsocketService } from 'src/app/services/websocket.service';
+import { TopicService } from 'src/app/services/topic.service';
 
 @Component({
   selector: 'app-chat',
@@ -16,29 +16,28 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   public text: string = '';
 
-  constructor(private wsService: WebsocketService, private chatService: ChatService) { }
+  constructor(private topicService: TopicService, private chatService: ChatService) {}
 
   ngOnInit() { 
-    
-    this._connected = this.wsService.connected;
-    this._subscription = this.wsService.subject.subscribe((connected : Boolean) =>{ 
+    this._subscription = this.topicService.subscribe('SERVER_STATUS', (connected : Boolean) =>{ 
       console.log(`ChatComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${connected}`)
       this._connected = connected
-   });
-
+    });
   }
 
   ngOnDestroy(): void {
 
     if (this._subscription) {
-      this._subscription.unsubscribe();
+      this.topicService.unsubscribe(this._subscription);
     }
     
   }
 
   public sendMessage(): void {
+
     console.log('ChatComponent.sendMessage> ', this.text);
     this.chatService.sendMessage(this.text);
     this.text = '';
+    
   }
 }

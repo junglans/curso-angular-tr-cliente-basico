@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { ReplaySubject } from 'rxjs';
+import { TopicService } from './topic.service';
 
 @Injectable({
   providedIn: 'root' // Esto significa que no debe declararse en el módulo
@@ -8,12 +9,9 @@ import { ReplaySubject } from 'rxjs';
 export class WebsocketService {
 
   private _connected: Boolean = false;
-  public _subject: ReplaySubject<Boolean> = new ReplaySubject<Boolean>();
-
-  constructor(private socket: Socket) { 
-
+   
+  constructor(private socket: Socket, private topicService: TopicService) { 
       this.checkServerStatus();
-
   }
 
   public checkServerStatus(): void {
@@ -21,14 +19,15 @@ export class WebsocketService {
       this.socket.on('connect', () => {
           console.log('WebsocketService> Conectado al servidor');
           this._connected = true;
-          this._subject.next(this._connected);
+          this.topicService.publish('SERVER_STATUS', this._connected);
       });
 
       this.socket.on('disconnect', () => {
         console.log('WebsocketService> Desconectado del servidor');
         this._connected = false;
-        this._subject.next(this._connected);
+        this.topicService.publish('SERVER_STATUS', this._connected);
     });
+
   }
 
   public sendMessage(eventName: string, payload?: any, callback?: Function): void {
@@ -38,9 +37,5 @@ export class WebsocketService {
 
   public get connected() {
     return this._connected;
-  }
-
-  public get subject(): ReplaySubject<Boolean> {
-      return this._subject;
   }
 }
