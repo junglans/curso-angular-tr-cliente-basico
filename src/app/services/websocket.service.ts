@@ -1,17 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
-import { ReplaySubject } from 'rxjs';
-import { TopicService } from './topic.service';
-
+import { TopicService } from './topic/topic.service';
+import { v4 as uuid } from 'uuid';
 @Injectable({
   providedIn: 'root' // Esto significa que no debe declararse en el módulo
 })
 export class WebsocketService {
 
   private _connected: Boolean = false;
-   
+  private senderId: string;
+
   constructor(private socket: Socket, private topicService: TopicService) { 
       this.checkServerStatus();
+      this.listenMessage();
+      this.senderId = uuid();
+
+      this.topicService.subscribe('MESSAGE_OUT', (message: any) => {
+          // Sending the message to the server...
+          this.sendMessage('messages', message);
+      });
   }
 
   public checkServerStatus(): void {
@@ -19,20 +26,27 @@ export class WebsocketService {
       this.socket.on('connect', () => {
           console.log('WebsocketService> Conectado al servidor');
           this._connected = true;
-          this.topicService.publish('SERVER_STATUS', this._connected);
+          this.topicService.publish('SERVER_STATUS', this._connected, this.senderId);
       });
 
       this.socket.on('disconnect', () => {
         console.log('WebsocketService> Desconectado del servidor');
         this._connected = false;
-        this.topicService.publish('SERVER_STATUS', this._connected);
-    });
+        this.topicService.publish('SERVER_STATUS', this._connected, this.senderId);
+      });
 
   }
 
-  public sendMessage(eventName: string, payload?: any, callback?: Function): void {
-    console.log('WebsocketService> enviando mensaje eventName: ' + eventName + 'con payload :' + JSON.stringify(payload));
+  private sendMessage(eventName: string, payload?: any, callback?: Function): void {
+    console.log('WebsocketService.sendMessage> enviando mensaje eventName: ' + eventName + ' con payload :' + JSON.stringify(payload));
     this.socket.emit(eventName, payload, callback);
+  }
+
+  private listenMessage():void {
+    console.log('WebsocketService.listenMessage> recibiendo mensaje...');
+    this.socket.on('messages', (message:any) => {
+        this.topicService.publish('MESSAGE_IN', message);
+    });
   }
 
   public get connected() {

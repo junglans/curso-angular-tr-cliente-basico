@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChatService } from 'src/app/services/chat.service';
 import { Subscription } from 'rxjs';
-import { TopicService } from 'src/app/services/topic.service';
+import { TopicService } from 'src/app/services/topic/topic.service';
 
 @Component({
   selector: 'app-chat',
@@ -34,10 +34,9 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   public sendMessage(): void {
-
-    console.log('ChatComponent.sendMessage> ', this.text);
+    
     this.chatService.sendMessage(this.text);
     this.text = '';
-    
+
   }
 }

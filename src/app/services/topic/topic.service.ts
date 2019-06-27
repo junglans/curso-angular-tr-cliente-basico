@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject, Subscription, Observer } from 'rxjs';
-
+import { Message } from './message';
+import { v4 as uuid } from 'uuid';
 @Injectable({
   providedIn: 'root'
 })
@@ -12,8 +13,11 @@ export class TopicService {
 
   //Esta es la lista de tópicos.
   private topics: Map<string, Subject<any>> = new Map<string, Subject<any>>();
+  private senderId: string;
 
-  constructor() { }
+  constructor() { 
+    this.senderId = uuid();
+  }
 
   /**
   * Crea un nuevo tópico en el que publicar los mensajes a partir del topicName.
@@ -45,7 +49,7 @@ export class TopicService {
    * @param topicName 
    * @param callback 
    */
-  public subscribe(topicName: string, callback: any): Subscription {
+  public subscribe(topicName: string, callback: Function): Subscription {
 
         let subject:Subject<any> = this.topics.get(topicName);
 
@@ -54,7 +58,11 @@ export class TopicService {
           this.topics.set(topicName, subject);
         }
 
-        return subject.subscribe(callback);
+        return subject.subscribe((message: Message) => {
+         
+             callback(message.payload);
+        
+        });
 
   }
 
@@ -73,12 +81,14 @@ export class TopicService {
    * @param topicName 
    * @param payload 
    */
-  public publish(topicName: string, payload: any): void {
+  public publish(topicName: string, payload: any, senderId?: string): void {
     const subject:Subject<any> = this.topics.get(topicName);
+    
     if (subject) {
-      subject.next(payload);
+      subject.next(new Message(senderId!=null?senderId:this.senderId, payload));
     }
   }
+  
 
   /**
    * Elimina todos los topicos eliminando las suscriciones.

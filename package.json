@@ -19,6 +19,7 @@
     "@angular/platform-browser": "~8.0.1",
     "@angular/platform-browser-dynamic": "~8.0.1",
     "@angular/router": "~8.0.1",
+    "@types/uuid": "^3.4.4",
     "jshint": "^2.10.2",
     "ngx-socket-io": "^2.1.1",
     "rxjs": "~6.4.0",

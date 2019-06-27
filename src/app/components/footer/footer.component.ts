@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy} from '@angular/core';
 import { WebsocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
-import { TopicService } from 'src/app/services/topic.service';
+import { TopicService } from 'src/app/services/topic/topic.service';
 
 @Component({
   selector: 'app-footer',
