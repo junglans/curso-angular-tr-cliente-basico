@@ -59,9 +59,7 @@ export class TopicService {
         }
 
         return subject.subscribe((message: Message) => {
-         
              callback(message.payload);
-        
         });
 
   }

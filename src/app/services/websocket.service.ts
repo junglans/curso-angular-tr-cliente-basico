@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { TopicService } from './topic/topic.service';
 import { v4 as uuid } from 'uuid';
+import { User } from '../model/user';
 @Injectable({
   providedIn: 'root' // Esto significa que no debe declararse en el módulo
 })
@@ -9,6 +10,7 @@ export class WebsocketService {
 
   private _connected: Boolean = false;
   private senderId: string;
+  private user: User;
 
   constructor(private socket: Socket, private topicService: TopicService) { 
       this.checkServerStatus();
@@ -51,5 +53,11 @@ export class WebsocketService {
 
   public get connected() {
     return this._connected;
+  }
+
+  public login(username: string): void {
+    this.sendMessage('configure-user', { username }, (resp) => {
+        console.log(resp);
+    });
   }
 }
