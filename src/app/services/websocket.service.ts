@@ -8,6 +8,13 @@ import { LISTEN_SERVER_STATUS_CHANGES, SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_M
 @Injectable({
   providedIn: 'root' // Esto significa que no debe declararse en el módulo
 })
+/**
+ * Este servicio es la pasarela que envía los mensajes de los componentes a través del socket y envía los mensajes entrantes recibidos
+ * del socket a los componentes. Cuando un componente quiere enviar un mensajes lo publica en el topico SEND_OUTGOING_MESSAGES. Este servicio 
+ * escucha mensajes en ese topico. Cuando recibe un mensaje lo envía a través del WebSocket.
+ * Cuando se reciben mensajes de otra aplicación, éstos entran a través del socket que los publica en el tópico LISTEN_INCOMING_MESSAGES que los
+ * hace llegar a cualquier componente que se haya suscrito.
+ */
 export class WebsocketService {
 
   private _connected: Boolean = false;S
@@ -42,13 +49,22 @@ export class WebsocketService {
 
   }
 
+  /**
+   * Este método envía el mensaje al servidor a través de socket.
+   * @param eventName 
+   * @param message 
+   * @param callback 
+   */
   private sendMessage(eventName: string, message?: any, callback?: Function): void {
     console.log('WebsocketService.sendMessage> enviando mensaje eventName: ' + eventName + ' con payload :' + JSON.stringify(message));
     this.socket.emit(eventName, message, callback);
   }
 
+  /**
+   * Escucha mensajes entrantes desde el socket y los publica en el tópico de los mensajes entrantes.
+   */
   private listenMessage():void {
-    // Cuando llega un mensaje entrante se publica en el tópico que escucha los mensajes entrantes.
+    // Cuando llega un mensaje entrante desde el servidor se publica en el tópico que escucha los mensajes entrantes.
     this.socket.on('messages', (message: {__senderId:string, _payload: any}) => {
         console.log('WebsocketService.listenMessage> recibiendo mensaje...' + JSON.stringify(message));
         this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message(message.__senderId, message._payload));
