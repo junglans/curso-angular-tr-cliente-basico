@@ -13,11 +13,9 @@ export class TopicService {
 
   //Esta es la lista de tópicos.
   private topics: Map<string, Subject<any>> = new Map<string, Subject<any>>();
-  private senderId: string;
+  public senderId: string = uuid();
 
-  constructor() { 
-    this.senderId = uuid();
-  }
+  constructor() {}
 
   /**
   * Crea un nuevo tópico en el que publicar los mensajes a partir del topicName.
@@ -59,7 +57,7 @@ export class TopicService {
         }
 
         return subject.subscribe((message: Message) => {
-             callback(message.payload);
+             callback(message);
         });
 
   }
@@ -79,15 +77,13 @@ export class TopicService {
    * @param topicName 
    * @param payload 
    */
-  public publish(topicName: string, payload: any, senderId?: string): void {
+  public publish(topicName: string, message: Message): void {
     const subject:Subject<any> = this.topics.get(topicName);
     
     if (subject) {
-      subject.next(new Message(senderId!=null?senderId:this.senderId, payload));
+      subject.next(message);
     }
   }
-  
-
   /**
    * Elimina todos los topicos eliminando las suscriciones.
    */

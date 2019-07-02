@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, QueryList } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TopicService } from 'src/app/services/topic/topic.service';
+import { Message } from 'src/app/services/topic/message';
 
 @Component({
   selector: 'app-chat',
@@ -29,9 +30,10 @@ export class ChatComponent implements OnInit, OnDestroy {
       this._connected = connected
     });
 
-    this._subscriptionMsgIn = this.topicService.subscribe('MESSAGE_IN', (message : any) =>{ 
-      console.log('ChatComponent> Recibido mensaje entrante ' + message );
-      this.messages.push(message);
+    this._subscriptionMsgIn = this.topicService.subscribe('MESSAGE_IN', (message : Message) =>{ 
+      console.log('ChatComponent> Recibido mensaje entrante :' + JSON.stringify(message));
+      console.log('ChatComponent> Recibido mensaje entrante :' + message.payload);
+      this.messages.push(message.payload);
       this.scrollToBottom(); 
     });
   }
@@ -53,7 +55,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (this.text.trim().length != 0) {
       
       console.log('ChatComponent.sendMessage> Sending message:' + JSON.stringify(this.text));
-      this.topicService.publish('MESSAGE_OUT', this.text);
+      this.topicService.publish('MESSAGE_OUT', new Message(this.topicService.senderId, this.text));
       this.text = '';
 
     }
@@ -63,8 +65,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.chatElement  = document.getElementById('chat-messages');
   }
 
-  private scrollToBottom(): any {
-    console.log('A-' + this.chatElement.scrollTop + ' ' + this.chatElement.scrollHeight);  
+  private scrollToBottom(): any { 
     setTimeout(()=>{
       this.chatElement.scrollTop =  this.chatElement.scrollHeight; 
     },50);      

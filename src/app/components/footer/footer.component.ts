@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy} from '@angular/core';
 import { WebsocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
 import { TopicService } from 'src/app/services/topic/topic.service';
+import { Message } from 'src/app/services/topic/message';
+import { LISTEN_SERVER_STATUS_CHANGES } from 'src/app/model/constants';
 
 @Component({
   selector: 'app-footer',
@@ -19,9 +21,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   constructor(private topicService: TopicService) {}
 
   ngOnInit(): void {
-    this._subscription = this.topicService.subscribe("SERVER_STATUS", (connected : Boolean) =>{ 
-      console.log(`FooterComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${connected}`)
-      this._connected = connected
+    this._subscription = this.topicService.subscribe(LISTEN_SERVER_STATUS_CHANGES, (msg : Message) =>{ 
+      console.log(`FooterComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${msg.payload}`)
+      this._connected = msg.payload
    })
   }
 
