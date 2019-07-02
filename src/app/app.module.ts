@@ -7,27 +7,39 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { FooterComponent } from './components/footer/footer.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { UserlistComponent } from './components/userlist/userlist.component';
+import { LoginComponent } from './pages/login/login.component';
+import { MessagesComponent } from './pages/messages/messages.component';
+import { AppRoutingModule } from './approuting.module';
+import { PageNotFoundComponent } from './pages/pagenotfound/pagenotfound.component';
 
-const config: SocketIoConfig = { 
-  url: environment.wsUrl, options: {} 
+const config: SocketIoConfig = {
+  url: environment.wsUrl, options: {}
 };
 
 @NgModule({
   declarations: [
     AppComponent,
     FooterComponent,
-    ChatComponent
+    ChatComponent,
+    UserlistComponent,
+    LoginComponent,
+    MessagesComponent,
+    PageNotFoundComponent
   ],
   imports: [
-    
     BrowserModule,
     FormsModule,
-    SocketIoModule.forRoot(config)
-    
+    SocketIoModule.forRoot(config),
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
 
 
-export class AppModule { }
+export class AppModule {
+  constructor() {
+    console.log('AppModule loaded');
+  }
+}
