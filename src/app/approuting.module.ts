@@ -3,11 +3,11 @@ import { RouterModule, Routes} from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { MessagesComponent } from './pages/messages/messages.component';
 import { PageNotFoundComponent } from './pages/pagenotfound/pagenotfound.component';
-import { UserguardService } from './guards/userguard.service';
+import { UserGuard } from './guards/userguard.service';
 
 const appRoutes: Routes = [
   { path: '', component: LoginComponent},
-  { path: 'messages', component: MessagesComponent, canActivate: [UserguardService]},
+  { path: 'messages', component: MessagesComponent, canActivate: [ UserGuard ]},
   { path: '**', component: PageNotFoundComponent}
 ];
 
@@ -20,7 +20,7 @@ const appRoutes: Routes = [
   ],
   exports: [ RouterModule ]
 })
-export class AppRoutingModule { 
+export class AppRoutingModule {
   constructor() {
     console.log('AppRoutingModule loaded');
   }

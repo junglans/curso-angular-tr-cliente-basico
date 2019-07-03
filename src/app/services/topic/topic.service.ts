@@ -44,12 +44,12 @@ export class TopicService {
 
   /**
    * Este método permite suscribirse al tópico y registrar una función de callback
-   * @param topicName 
-   * @param callback 
+   * @param topicName nombre de tópico en el que se va a suscribir
+   * @param callback Una función que se va a ejecutar cuando se reciba el mensaje.
    */
-  public subscribe(topicName: string, callback: Function): Subscription {
+  public subscribe(topicName: string, callback: (msg: any) => void): Subscription {
 
-        let subject:Subject<any> = this.topics.get(topicName);
+        let subject: Subject<any> = this.topics.get(topicName);
 
         if (!subject) {
           subject = this.newTopic(topicName);

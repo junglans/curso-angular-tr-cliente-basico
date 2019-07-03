@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  public username:string = '';
+  public username: string = '';
   constructor(private wsService: WebsocketService, private router: Router) { }
 
   ngOnInit() {}
@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   public login(): void {
       this.wsService.login(this.username).
         then((data) => {
-          console.log('Resolve :' + data)
+          console.log('Resolve :' + data);
           this.router.navigateByUrl('/messages');
         }).catch((err) => {
           console.log('Reject :' + err)
