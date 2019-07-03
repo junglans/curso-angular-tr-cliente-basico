@@ -37,13 +37,13 @@ export class WebsocketService {
       this.socket.on('connect', () => {
           console.log('WebsocketService> Conectado al servidor');
           this._connected = true;
-          this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message(this._connected));
+          this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message('server', this._connected));
       });
 
       this.socket.on('disconnect', () => {
         console.log('WebsocketService> Desconectado del servidor');
         this._connected = false;
-        this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message(this._connected));
+        this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message('server', this._connected));
       });
 
   }
@@ -64,9 +64,9 @@ export class WebsocketService {
    */
   private listenMessage(): void {
     // Cuando llega un mensaje entrante desde el servidor se publica en el tópico que escucha los mensajes entrantes.
-    this.socket.on('messages', (message: {__senderId: string, _payload: any}) => {
+    this.socket.on('messages', (message: {from: string, payload: any}) => {
         console.log('WebsocketService.listenMessage> recibiendo mensaje...' + JSON.stringify(message));
-        this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message._payload));
+        this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message._from, message._payload));
     });
   }
 
@@ -101,6 +101,8 @@ export class WebsocketService {
       const user: any | undefined = JSON.parse(sessionStorage.getItem('user'));
       if (user != null) {
         this._user = new User(user._username);
+        // In case of a page reloading the server is losing the username, we have to send it again.
+        this.login(this._user.username);
       } else {
         this._user = null;
       }

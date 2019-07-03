@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { UserguardService } from './userguard.service';
+import { UserGuard } from './userguard.service';
 
-describe('UserguardService', () => {
+describe('UserGuard', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: UserguardService = TestBed.get(UserguardService);
+    const service: UserGuard = TestBed.get(UserGuard);
     expect(service).toBeTruthy();
   });
 });

@@ -2,17 +2,12 @@
 <!-- UTILIZAR EL VIRTUEL SCROLL DE ANGULAR -->
 <div id='chat-messages'>
 
-    
-
-        <li class="list-group-item" *ngFor="let msg of messages">
-        {{ msg }}
-        </li>
-     
+    <li class="list-group-item" *ngFor="let msg of messages">
+        {{ msg.from}}&nbsp;:&nbsp;{{msg.payload}}
+    </li>
 
 </div>
 
 <form (ngSubmit)="sendMessage()">
-    <input *ngIf="_connected" type="text" name="text" [(ngModel)]="text" 
-    class="form-control chat-input" 
-    placeholder="Mensaje...." autofocus autocomplete="off">
+    <input *ngIf="isConnected()" type="text" name="text" [(ngModel)]="text" class="form-control chat-input" placeholder="Mensaje...." autofocus autocomplete="off">
 </form>
