@@ -8,4 +8,8 @@ export class User {
     public get username(): string {
         return this._username;
     }
+
+    public set username(username: string) {
+        this._username = username;
+    }
 }

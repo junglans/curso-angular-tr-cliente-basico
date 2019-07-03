@@ -13,7 +13,7 @@ export class TopicService {
 
   //Esta es la lista de tópicos.
   private topics: Map<string, Subject<any>> = new Map<string, Subject<any>>();
-  public senderId: string = uuid();
+  
 
   constructor() {}
 

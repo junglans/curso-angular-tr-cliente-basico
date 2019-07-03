@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { TopicService } from './topic/topic.service';
-import { v4 as uuid } from 'uuid';
+ 
 import { User } from '../model/user';
 import { Message } from './topic/message';
 import { LISTEN_SERVER_STATUS_CHANGES, SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES } from '../model/constants';
@@ -17,14 +17,13 @@ import { LISTEN_SERVER_STATUS_CHANGES, SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_M
  */
 export class WebsocketService {
 
-  private _connected: Boolean = false;S
-  private senderId: string;
-  private user: User;
+  private _connected: boolean = false;
+  private _user: User;
 
   constructor(private socket: Socket, private topicService: TopicService) { 
+      this.getUserFromSessionStorage();
       this.checkServerStatus();
       this.listenMessage();
-      this.senderId = uuid();
 
       // Escuchamos eventos de mensajes salientes por si algun componente quiere enviar mensajes al servidor a través del socket.
       this.topicService.subscribe(SEND_OUTGOING_MESSAGES, (message: Message) => {
@@ -38,13 +37,13 @@ export class WebsocketService {
       this.socket.on('connect', () => {
           console.log('WebsocketService> Conectado al servidor');
           this._connected = true;
-          this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message(this.senderId, this._connected));
+          this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message(this._connected));
       });
 
       this.socket.on('disconnect', () => {
         console.log('WebsocketService> Desconectado del servidor');
         this._connected = false;
-        this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message(this.senderId, this._connected));
+        this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message(this._connected));
       });
 
   }
@@ -67,17 +66,45 @@ export class WebsocketService {
     // Cuando llega un mensaje entrante desde el servidor se publica en el tópico que escucha los mensajes entrantes.
     this.socket.on('messages', (message: {__senderId:string, _payload: any}) => {
         console.log('WebsocketService.listenMessage> recibiendo mensaje...' + JSON.stringify(message));
-        this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message(message.__senderId, message._payload));
+        this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message._payload));
     });
   }
 
-  public get connected() {
+  public get connected(): boolean {
     return this._connected;
   }
 
-  public login(username: string): void {
-    this.sendMessage('configure-user', { username }, (resp) => {
-        console.log(resp);
+  public get user(): User {
+    return this._user;
+  }
+
+  public login(username: string): Promise<any> {
+
+    return new Promise( (resolve, reject) => {
+            this.sendMessage('configure-user', { username }, (resp: {ok:boolean, msg: string}) => {
+                if (resp.ok) {
+                  this._user = new User(username);
+                  this.saveToUserSessionStorage();
+                  resolve('Login Ok');
+                } else {
+                  reject('Login Failed');
+                }
+            });
     });
+    
+  }
+
+  private saveToUserSessionStorage(): void{
+      sessionStorage.setItem('user', JSON.stringify(this.user));
+  }
+
+  private getUserFromSessionStorage(): void {
+      const user: any | undefined = JSON.parse(sessionStorage.getItem('user'));
+      
+      if (user != null) {
+        this._user = new User(user._username);
+      } else {
+        this._user = null;
+      }
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -9,12 +10,17 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 export class LoginComponent implements OnInit {
 
   public username:string = '';
-  constructor(private wsService: WebsocketService) { }
+  constructor(private wsService: WebsocketService, private router: Router) { }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   public login(): void {
-      this.wsService.login(this.username);
+      this.wsService.login(this.username).
+        then((data) => {
+          console.log('Resolve :' + data)
+          this.router.navigateByUrl('/messages');
+        }).catch((err) => {
+          console.log('Reject :' + err)
+      });
   }
 }

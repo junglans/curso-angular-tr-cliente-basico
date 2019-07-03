@@ -55,7 +55,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     if (this.text.trim().length != 0) {
       
       console.log('ChatComponent.sendMessage> Sending message:' + JSON.stringify(this.text));
-      this.topicService.publish('MESSAGE_OUT', new Message(this.topicService.senderId, this.text));
+      this.topicService.publish('MESSAGE_OUT', new Message(this.text));
       this.text = '';
 
     }
