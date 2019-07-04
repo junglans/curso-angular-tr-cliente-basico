@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-userlist',
@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UserlistComponent implements OnInit {
 
+  @Input('connected') public connected: boolean = false;
   constructor() { }
 
   ngOnInit() {

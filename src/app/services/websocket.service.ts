@@ -64,7 +64,7 @@ export class WebsocketService {
    */
   private listenMessage(): void {
     // Cuando llega un mensaje entrante desde el servidor se publica en el tópico que escucha los mensajes entrantes.
-    this.socket.on('messages', (message: {from: string, payload: any}) => {
+    this.socket.on('messages', (message: {_from: string, _payload: any}) => {
         console.log('WebsocketService.listenMessage> recibiendo mensaje...' + JSON.stringify(message));
         this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message._from, message._payload));
     });

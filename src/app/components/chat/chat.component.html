@@ -9,5 +9,5 @@
 </div>
 
 <form (ngSubmit)="sendMessage()">
-    <input *ngIf="isConnected()" type="text" name="text" [(ngModel)]="text" class="form-control chat-input" placeholder="Mensaje...." autofocus autocomplete="off">
+    <input *ngIf="connected" type="text" name="text" [(ngModel)]="text" class="form-control chat-input" placeholder="Mensaje...." autofocus autocomplete="off">
 </form>
