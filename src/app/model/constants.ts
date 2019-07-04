@@ -1,3 +1,3 @@
-export const LISTEN_INCOMING_MESSAGES:string = "MESSAGE_IN";
-export const SEND_OUTGOING_MESSAGES:string = "MESSAGE_OUT";
-export const LISTEN_SERVER_STATUS_CHANGES:string = "SERVER_STATUS";
+export const LISTEN_INCOMING_MESSAGES: string = 'MESSAGE_IN';
+export const SEND_OUTGOING_MESSAGES: string = 'MESSAGE_OUT';
+export const LISTEN_SERVER_STATUS_CHANGES: string = 'SERVER_STATUS';

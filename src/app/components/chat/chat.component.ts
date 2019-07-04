@@ -4,6 +4,7 @@ import { TopicService } from 'src/app/services/topic/topic.service';
 import { Message } from 'src/app/services/topic/message';
 import { User } from 'src/app/model/user';
 import { Router } from '@angular/router';
+import { SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES } from 'src/app/model/constants';
 
 @Component({
   selector: 'app-chat',
@@ -12,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  @Input('connected')  public connected: boolean = false;
+  @Input() public connected: boolean = false;
 
   private chatElement: HTMLElement;
   private _subscriptionConnection: Subscription;
@@ -34,7 +35,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    this._subscriptionMsgIn = this.topicService.subscribe('MESSAGE_IN', (message: Message) => {
+    this._subscriptionMsgIn = this.topicService.subscribe(LISTEN_INCOMING_MESSAGES, (message: Message) => {
       console.log('ChatComponent> Recibido mensaje entrante :' + JSON.stringify(message));
       console.log('ChatComponent> Recibido mensaje entrante :' + message.payload);
       this.messages.push(message);
@@ -48,7 +49,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
     if (user != null) {
       // Hemos llegado aqui porque el guard lo permite ya que hay conexión.
       this.user = new User(user._username);
-       
     }
 
   }
@@ -69,12 +69,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.text.trim().length !== 0) {
 
       console.log('ChatComponent.sendMessage> Sending message:' + JSON.stringify(this.text));
-      this.topicService.publish('MESSAGE_OUT', new Message(this.user.username, this.text));
+      this.topicService.publish(SEND_OUTGOING_MESSAGES, new Message(this.user.username, this.text));
       this.text = '';
 
     }
   }
- 
 
   ngAfterViewInit() {
     this.chatElement = document.getElementById('chat-messages');

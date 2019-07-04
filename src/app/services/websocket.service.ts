@@ -23,17 +23,18 @@ export class WebsocketService {
   constructor(private socket: Socket, private topicService: TopicService) {
       this.getUserFromSessionStorage();
       this.checkServerStatus();
-      this.listenMessage();
+      this.listenPublicMessages();
+      this.listenPrivateMessages();
 
       // Escuchamos eventos de mensajes salientes por si algun componente quiere enviar mensajes al servidor a través del socket.
       this.topicService.subscribe(SEND_OUTGOING_MESSAGES, (message: Message) => {
           // Sending the message to the server...
-          this.sendMessage('messages', message);
+          this.sendMessage('public-messages', message);
       });
   }
 
   public checkServerStatus(): void {
-
+      // Los tópicos 'connect' y 'disconect' los envía el servidor.
       this.socket.on('connect', () => {
           console.log('WebsocketService> Conectado al servidor');
           this._connected = true;
@@ -62,11 +63,18 @@ export class WebsocketService {
   /**
    * Escucha mensajes entrantes desde el socket y los publica en el tópico de los mensajes entrantes.
    */
-  private listenMessage(): void {
+  private listenPublicMessages(): void {
     // Cuando llega un mensaje entrante desde el servidor se publica en el tópico que escucha los mensajes entrantes.
-    this.socket.on('messages', (message: {_from: string, _payload: any}) => {
-        console.log('WebsocketService.listenMessage> recibiendo mensaje...' + JSON.stringify(message));
-        this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message._from, message._payload));
+    // Los mensajes pueden ser privados, dirigidos solamente a un cliente, o públicos dirigidos a todos.
+    this.socket.on('public-messages', (message: {from: string, payload: any}) => {
+        console.log('WebsocketService.listenPublicMessages> recibiendo mensaje público...' + JSON.stringify(message));
+        this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message.from, message.payload));
+    });
+  }
+  private listenPrivateMessages(): void {
+    this.socket.on('private-messages', (message: {from: string, payload: any}) => {
+      console.log('WebsocketService.listenPrivateMessages> recibiendo mensaje privado...' + JSON.stringify(message));
+      this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message.from, message.payload ));
     });
   }
 

@@ -13,17 +13,21 @@ import { LISTEN_INCOMING_MESSAGES, SEND_OUTGOING_MESSAGES, LISTEN_SERVER_STATUS_
 export class AppComponent implements OnInit, OnDestroy {
 
   title = 'cliente-basico';
-  // tslint:disable-next-line:no-inferrable-types
+
   active: boolean = false;
   constructor( private wsService: WebsocketService, private topicService: TopicService) {}
 
   ngOnInit(): void {
-      this.topicService.createTopic(LISTEN_INCOMING_MESSAGES);
-      this.topicService.createTopic(SEND_OUTGOING_MESSAGES);
-      this.topicService.createTopic(LISTEN_SERVER_STATUS_CHANGES);
+     this.createTopics();
   }
 
   ngOnDestroy(): void {
     this.topicService.clearAll();
+  }
+
+  private createTopics(): void {
+    this.topicService.createTopic(LISTEN_INCOMING_MESSAGES);
+    this.topicService.createTopic(SEND_OUTGOING_MESSAGES);
+    this.topicService.createTopic(LISTEN_SERVER_STATUS_CHANGES);
   }
 }
