@@ -4,7 +4,7 @@ import { TopicService } from 'src/app/services/topic/topic.service';
 import { Message } from 'src/app/services/topic/message';
 import { User } from 'src/app/model/user';
 import { Router } from '@angular/router';
-import { SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES } from 'src/app/model/constants';
+import { SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES, LISTEN_SERVER_STATUS_CHANGES} from 'src/app/model/constants';
 
 @Component({
   selector: 'app-chat',
@@ -26,13 +26,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   public messages: Array<any> = new Array<any>();
 
   constructor(private topicService: TopicService, private router: Router) {
-    this._subscriptionConnection = this.topicService.subscribe('SERVER_STATUS', (msg: Message) =>{
+    this._subscriptionConnection = this.topicService.subscribe(LISTEN_SERVER_STATUS_CHANGES, (msg: Message) =>{
       console.log(`ChatComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${msg.payload}`);
       // In this message the payload carries the server's connection status.
       this.connected = msg.payload;
-      if (!this.connected) {
-          this.router.navigateByUrl('/');
-      }
     });
 
     this._subscriptionMsgIn = this.topicService.subscribe(LISTEN_INCOMING_MESSAGES, (message: Message) => {

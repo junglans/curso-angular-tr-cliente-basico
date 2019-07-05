@@ -5,6 +5,7 @@ import { TopicService } from './topic/topic.service';
 import { User } from '../model/user';
 import { Message } from './topic/message';
 import { LISTEN_SERVER_STATUS_CHANGES, SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES } from '../model/constants';
+import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root' // Esto significa que no debe declararse en el módulo
 })
@@ -20,7 +21,9 @@ export class WebsocketService {
   private _connected: boolean = false;
   private _user: User;
 
-  constructor(private socket: Socket, private topicService: TopicService) {
+  constructor(private socket: Socket, 
+              private topicService: TopicService,
+              private router: Router) {
       this.getUserFromSessionStorage();
       this.checkServerStatus();
       this.listenPublicMessages();
@@ -38,6 +41,17 @@ export class WebsocketService {
       this.socket.on('connect', () => {
           console.log('WebsocketService> Conectado al servidor');
           this._connected = true;
+          // Mandamos el usuario de nuevo al servidor si ya existía una sesión previamente.
+          if (this._user != null) {
+              this.relogin().
+              then( ( data ) => {
+                 console.log('Resolve :' + data);}
+              ).catch( ( err ) => {
+                  console.log('Reject :' + err);
+                  this.router.navigateByUrl('/');
+                }
+              );
+          }
           this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message('server', this._connected));
       });
 
@@ -99,6 +113,23 @@ export class WebsocketService {
                 }
             });
     });
+  }
+
+  private relogin()  {
+
+    return new Promise( (resolve, reject) => {
+      
+      this.sendMessage('configure-user', { username: this._user.username }, (resp: {ok: boolean, msg: string}) => {
+          if (resp.ok) {
+            resolve('ReLogin Ok');
+          } else {
+            reject('ReLogin Failed');
+          }
+        }
+      );
+
+    });
+
   }
 
   private saveToUserSessionStorage(): void {
