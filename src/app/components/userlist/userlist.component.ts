@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TopicService } from 'src/app/services/topic/topic.service';
 import { LISTEN_USER_STATUS_CHANGES, REQUEST_USERS_CONNECTED } from 'src/app/model/constants';
 import { Subscription } from 'rxjs';
@@ -11,7 +11,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   templateUrl: './userlist.component.html',
   styleUrls: ['./userlist.component.css']
 })
-export class UserlistComponent implements OnInit, OnDestroy, AfterViewInit {
+export class UserlistComponent implements OnInit, OnDestroy {
   
   
   private subscription: Subscription;
@@ -27,13 +27,9 @@ export class UserlistComponent implements OnInit, OnDestroy, AfterViewInit {
       this.users.push(new User(element.username, element.room, element.id));
      });
    });
-  }
-
-  ngAfterViewInit(): void {
-    // Una vez que el componente se ha iniciado. Solicitamos la lista de usuarios conectados publicando la solicitud en un
-    // tópico.
-    console.log('UserlistComponent.ngAfterViewInit> Solicitando la lista de usuarios...');
-    this.topicService.publish(REQUEST_USERS_CONNECTED, null);
+   // Una vez cargado el componente y relizada la suscripción a cambios en los usuarios
+   // solicitamos la lista de usuarios conectados.
+   this.topicService.publish(REQUEST_USERS_CONNECTED, null);
   }
 
   ngOnDestroy(): void {

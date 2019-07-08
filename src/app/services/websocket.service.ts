@@ -31,6 +31,7 @@ export class WebsocketService {
       this.listenPublicMessages();
       this.listenPrivateMessages();
       this.listenForUsers();
+      this.listenForActiveUsers();
       
       this.getUserFromSessionStorage();
 
@@ -40,15 +41,11 @@ export class WebsocketService {
           this.sendMessage('public-messages', message);
       });
 
-      // Escuchamos solicitudes de listas de usuarios conectados desde los componentes.
-      this.topicService.subscribe(REQUEST_USERS_CONNECTED, (message: Message) => {
+      // Escuchamos solicitudes de realizadas desde los componentes para recuperar la lista de usuarios conetados..
+      this.topicService.subscribe(REQUEST_USERS_CONNECTED, () => {
           // Enviamos la solicitud al servidor.
-          this.sendMessage('users-connected-request', null, (message: {ok: boolean, msg: any}) => {
-            if (message.ok) {
-              this.topicService.publish(LISTEN_USER_STATUS_CHANGES, new Message('server',message.msg));
-            } else {
-              console.log('ERRROR!!!!')
-            }
+          this.sendMessage('active-users-request', null, (message: {ok: boolean, msg: any}) => {
+              console.log(message)
           });
      });
   }
@@ -133,6 +130,15 @@ export class WebsocketService {
 
   }
 
+  private listenForActiveUsers(): void {
+
+      this.socket.on('active-users-request', (message: {from: string, payload: any}) => {
+        console.log('WebsocketService.listenForActiveUsers> recibiendo listado de usuarios activos : ' + JSON.stringify(message));
+           this.topicService.publish(LISTEN_USER_STATUS_CHANGES, new Message(message.from ,message.payload));
+
+      });
+  }
+
   public get connected(): boolean {
     return this._connected;
   }
@@ -144,7 +150,7 @@ export class WebsocketService {
   public login(username: string): Promise<any> {
 
     return new Promise( (resolve, reject) => {
-            this.sendMessage('configure-user', { username }, (resp: {ok: boolean, msg: string}) => {
+            this.sendMessage('configure-user', { username }, (resp: { ok: boolean, msg: string }) => {
                 if (resp.ok) {
                   this._user.username = username;
                   this.saveToUserSessionStorage();
