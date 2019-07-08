@@ -1,11 +1,12 @@
-<h1>Usuario: <small>{{ wsService.user.username }}</small></h1>
+<h1>Usuario: <small>{{ wsService.user.username }}:{{wsService.user.id}}</small></h1>
 <hr>
 
 <div class="row">
 
     <div class="col-6">
-        <app-userlist [connected]='wsService.connected'></app-userlist>
+        <app-userlist></app-userlist>
     </div>
+     
     <div class="col-6">
         <app-chat [connected]='wsService.connected'></app-chat>
     </div>

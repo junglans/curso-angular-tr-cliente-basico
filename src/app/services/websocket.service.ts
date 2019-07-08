@@ -4,7 +4,7 @@ import { TopicService } from './topic/topic.service';
 
 import { User } from '../model/user';
 import { Message } from './topic/message';
-import { LISTEN_SERVER_STATUS_CHANGES, SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES } from '../model/constants';
+import { LISTEN_SERVER_STATUS_CHANGES, SEND_OUTGOING_MESSAGES, LISTEN_INCOMING_MESSAGES, LISTEN_USER_STATUS_CHANGES, REQUEST_USERS_CONNECTED } from '../model/constants';
 import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root' // Esto significa que no debe declararse en el módulo
@@ -19,44 +19,60 @@ import { Router } from '@angular/router';
 export class WebsocketService {
 
   private _connected: boolean = false;
-  private _user: User;
+  private _user: User = new User('no-name', 'no-room', 'no-id');
 
   constructor(private socket: Socket, 
               private topicService: TopicService,
               private router: Router) {
-      this.getUserFromSessionStorage();
+
+      // Registramos los listeners para los diferente eventos que envía el servidor.
+      this.listenForUserId();
       this.checkServerStatus();
       this.listenPublicMessages();
       this.listenPrivateMessages();
+      this.listenForUsers();
+      
+      this.getUserFromSessionStorage();
 
       // Escuchamos eventos de mensajes salientes por si algun componente quiere enviar mensajes al servidor a través del socket.
       this.topicService.subscribe(SEND_OUTGOING_MESSAGES, (message: Message) => {
           // Sending the message to the server...
           this.sendMessage('public-messages', message);
       });
+
+      // Escuchamos solicitudes de listas de usuarios conectados desde los componentes.
+      this.topicService.subscribe(REQUEST_USERS_CONNECTED, (message: Message) => {
+          // Enviamos la solicitud al servidor.
+          this.sendMessage('users-connected-request', null, (message: {ok: boolean, msg: any}) => {
+            if (message.ok) {
+              this.topicService.publish(LISTEN_USER_STATUS_CHANGES, new Message('server',message.msg));
+            } else {
+              console.log('ERRROR!!!!')
+            }
+          });
+     });
   }
 
   public checkServerStatus(): void {
       // Los tópicos 'connect' y 'disconect' los envía el servidor.
       this.socket.on('connect', () => {
-          console.log('WebsocketService> Conectado al servidor');
+
+          //console.log('WebsocketService> Conectado al servidor ');
           this._connected = true;
           // Mandamos el usuario de nuevo al servidor si ya existía una sesión previamente.
           if (this._user != null) {
-              this.relogin().
-              then( ( data ) => {
-                 console.log('Resolve :' + data);}
+              this.getUserFromSessionStorage();
+              this.relogin().then( ( data ) => { console.log('WebsocketService.checkServerStatus> Resolve :' + data); }
               ).catch( ( err ) => {
-                  console.log('Reject :' + err);
                   this.router.navigateByUrl('/');
                 }
               );
-          }
+          } 
           this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message('server', this._connected));
       });
 
       this.socket.on('disconnect', () => {
-        console.log('WebsocketService> Desconectado del servidor');
+        // console.log('WebsocketService> Desconectado del servidor');
         this._connected = false;
         this.topicService.publish(LISTEN_SERVER_STATUS_CHANGES, new Message('server', this._connected));
       });
@@ -70,26 +86,51 @@ export class WebsocketService {
    * @param callback función de callback que se ejecutará
    */
   private sendMessage(eventName: string, message?: any, callback?: (resp: any) => void): void {
-    console.log('WebsocketService.sendMessage> enviando mensaje eventName: ' + eventName + ' con payload :' + JSON.stringify(message));
+    // console.log('WebsocketService.sendMessage> enviando mensaje eventName: ' + eventName + ' con payload :' + JSON.stringify(message));
     this.socket.emit(eventName, message, callback);
   }
 
   /**
-   * Escucha mensajes entrantes desde el socket y los publica en el tópico de los mensajes entrantes.
+   * Escucha mensajes públicos entrantes desde el socket y los publica en el tópico de los mensajes entrantes.
    */
   private listenPublicMessages(): void {
     // Cuando llega un mensaje entrante desde el servidor se publica en el tópico que escucha los mensajes entrantes.
     // Los mensajes pueden ser privados, dirigidos solamente a un cliente, o públicos dirigidos a todos.
     this.socket.on('public-messages', (message: {from: string, payload: any}) => {
-        console.log('WebsocketService.listenPublicMessages> recibiendo mensaje público...' + JSON.stringify(message));
+        // console.log('WebsocketService.listenPublicMessages> recibiendo mensaje público...' + JSON.stringify(message));
         this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message.from, message.payload));
     });
   }
+  /**
+   * Escucha mensajes privados. Los mensajes privados se dirigen hacia un único cliente y se publican en el mismo tópico
+   * de mensajes entrantes.
+   */
   private listenPrivateMessages(): void {
     this.socket.on('private-messages', (message: {from: string, payload: any}) => {
-      console.log('WebsocketService.listenPrivateMessages> recibiendo mensaje privado...' + JSON.stringify(message));
+      // console.log('WebsocketService.listenPrivateMessages> recibiendo mensaje privado...' + JSON.stringify(message));
       this.topicService.publish(LISTEN_INCOMING_MESSAGES, new Message( message.from, message.payload ));
     });
+  }
+
+  /**
+   * Escucha por mensajes entrantes de cambios en la lista de usuarios conectados.
+   */
+  private listenForUsers(): void {
+
+      this.socket.on('user-connection', (message: {from: string, payload: any}) => {
+       // console.log('WebsocketService.listenForUsers> recibiendo mensaje de usuario conectado/desconectado: ' + JSON.stringify(message));
+        this.topicService.publish(LISTEN_USER_STATUS_CHANGES, new Message( message.from, message.payload ));
+      });
+
+  }
+
+  private listenForUserId(): void {
+
+    this.socket.on('user-id', (message: {from: string, payload: string}) => {
+      console.log('WebsocketService.listenForUsers> recibiendo mensaje de usuario conectado/desconectado: ' + JSON.stringify(message));
+      this._user =  new User('no-name', 'no-room', message.payload);
+    });
+
   }
 
   public get connected(): boolean {
@@ -105,7 +146,7 @@ export class WebsocketService {
     return new Promise( (resolve, reject) => {
             this.sendMessage('configure-user', { username }, (resp: {ok: boolean, msg: string}) => {
                 if (resp.ok) {
-                  this._user = new User(username);
+                  this._user.username = username;
                   this.saveToUserSessionStorage();
                   resolve('Login Ok');
                 } else {
@@ -133,13 +174,13 @@ export class WebsocketService {
   }
 
   private saveToUserSessionStorage(): void {
-      sessionStorage.setItem('user', JSON.stringify(this.user));
+      sessionStorage.setItem('user', JSON.stringify( {username: this.user.username}));
   }
 
   private getUserFromSessionStorage(): void {
       const user: any | undefined = JSON.parse(sessionStorage.getItem('user'));
       if (user != null) {
-        this._user = new User(user._username);
+        this._user.username = user.username;
         // In case of a page reloading the server is losing the username, we have to send it again.
         this.login(this._user.username);
       } else {

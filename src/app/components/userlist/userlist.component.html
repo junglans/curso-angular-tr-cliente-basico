@@ -1,1 +1,13 @@
-<p>userlist works!</p>
+<h1>Usuarios</h1>
+<hr>
+
+<ul class="list-group">
+
+    <li class="list-group-item" *ngFor="let item of users">
+        {{item.username}}
+        <span class="badge badge-primary">{{item.room}}</span>
+        <br>
+        <span class="badge badge-info">{{item.id}}</span>
+    </li>
+
+</ul>

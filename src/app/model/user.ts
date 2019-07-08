@@ -1,15 +1,12 @@
 export class User {
-    private _username: string;
-
-    constructor(username: string) {
-        this._username = username;
+    public username: string = 'no-name';
+    public room: string = 'no-room';
+    public id: string;
+    constructor(username: string, room : string, id : string) {
+        this.username = username;
+        this.room = room;
+        this.id = id;
     }
     
-    public get username(): string {
-        return this._username;
-    }
-
-    public set username(username: string) {
-        this._username = username;
-    }
+    
 }

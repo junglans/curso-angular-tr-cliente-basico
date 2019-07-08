@@ -20,7 +20,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   constructor(private topicService: TopicService) {
     this._subscription = this.topicService.subscribe(LISTEN_SERVER_STATUS_CHANGES, (msg : Message) =>{ 
-      console.log(`FooterComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${msg.payload}`)
+    //  console.log(`FooterComponent> Recibido evento de conexión/deconexión del servidor. Conectado :${msg.payload}`)
       this._connected = msg.payload
    });
 
