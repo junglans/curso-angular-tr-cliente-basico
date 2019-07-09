@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-messages',
@@ -8,7 +9,18 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 })
 export class MessagesComponent implements OnInit {
 
-  constructor(public wsService: WebsocketService) {}
+  constructor(public wsService: WebsocketService, private router: Router) {}
   ngOnInit() {}
+
+  public logout(): void {
+    console.log('MessagesComponent.logout> Invocando logout.');
+    this.wsService.logout()
+    .then(() => {
+        this.router.navigateByUrl('/');
+    })
+    .catch(() => {
+      console.log('Se ha producido un error.');
+    });
+  }
 
 }

@@ -153,7 +153,7 @@ export class WebsocketService {
             this.sendMessage('configure-user', { username }, (resp: { ok: boolean, msg: string }) => {
                 if (resp.ok) {
                   this._user.username = username;
-                  this.saveToUserSessionStorage();
+                  this.saveUserToSessionStorage();
                   resolve('Login Ok');
                 } else {
                   reject('Login Failed');
@@ -162,6 +162,25 @@ export class WebsocketService {
     });
   }
 
+  public logout(): Promise<any> {
+     return new Promise( ( resolve, reject ) => {
+        this.sendMessage('configure-user', { username: 'no-name' }, ( resp: {ok: boolean, msg: string}) => {
+
+            if (resp.ok) {
+
+               this._user.username = 'no-name';
+               this._user.room = 'no-room';
+               this.removeUserFromSessionStorage();
+               resolve();
+
+            } else {
+               reject();
+            }
+
+
+        });
+     });
+  }
   private relogin()  {
 
     return new Promise( (resolve, reject) => {
@@ -179,9 +198,13 @@ export class WebsocketService {
 
   }
 
-  private saveToUserSessionStorage(): void {
+  private saveUserToSessionStorage(): void {
       sessionStorage.setItem('user', JSON.stringify( {username: this.user.username}));
   }
+
+  private removeUserFromSessionStorage(): void {
+    sessionStorage.removeItem('user');
+  }   
 
   private getUserFromSessionStorage(): void {
       const user: any | undefined = JSON.parse(sessionStorage.getItem('user'));
