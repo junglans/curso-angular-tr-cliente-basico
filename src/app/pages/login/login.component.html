@@ -4,13 +4,21 @@
 
     <div class="col-9">
 
-        <form class="p-4" (ngSubmit)="login()">
+        <form #login = "ngForm" class="p-4" (ngSubmit)="login()">
             <div>
-                <label for="username">Nombre del Usuario</label>
+                <label for="username">Usuario</label>
                 <input type="text" [(ngModel)]="username" 
                     name="username" class="form-control"
                     placeholder="Nombre de usuario" 
                     autocomplete="false" autofocus>
+
+            </div>
+            <div class="mt-3">
+                <label for="username">Password</label>
+                <input type="password" [(ngModel)]="password" 
+                    name="password" class="form-control"
+                    placeholder="Clave del usuario" 
+                    autocomplete="false">
 
             </div>
             <div class="mt-3"> 

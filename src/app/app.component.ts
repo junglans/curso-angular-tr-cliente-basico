@@ -30,7 +30,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.topicService.createTopic(LISTEN_SERVER_STATUS_CHANGES);
     this.topicService.createTopic(LISTEN_USER_STATUS_CHANGES);
     this.topicService.createTopic(REQUEST_USERS_CONNECTED);
-  
     
   }
 }

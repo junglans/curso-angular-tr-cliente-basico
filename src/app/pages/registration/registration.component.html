@@ -1,0 +1,83 @@
+<div class="card m-4">
+    <label>https://jasonwatmore.com/post/2019/06/15/angular-8-template-driven-forms-validation-example</label>
+    <h5 class="card-header text-center">Formulario de registro</h5>
+    <div class="card-body" >
+        <!-- 
+            MIRAR
+            novalidate indica que el formulario no se va a validar en evento onsubmit
+         -->
+        <form #f="ngForm" (ngSubmit)="onSubmit()" [mustMatch]="['password', 'confirmPassword']" > 
+
+            <div class="form-row">
+                <div class="form-group col-2">
+                    <label>Title</label>
+                    <select name="title" class="form-control" [(ngModel)]="model.title" #title="ngModel" 
+                             [ngClass]="{ 'is-invalid': f.submitted && title.invalid }" required>
+                            <option value=""></option>
+                            <option *ngFor="let item of options" value="{{item}}">{{item}}</option>
+                    </select>
+                    <div *ngIf="f.submitted && title.invalid" class="invalid-feedback">
+                        <div *ngIf="title.errors.required">Title is required</div>
+                    </div>
+                </div>
+                <div class="form-group col-5">
+                    <label>First name</label>
+                    <input name="firstName"  type='text' placeholder="First name" class="form-control"
+                           [(ngModel)]='model.firstName' #firstName='ngModel' 
+                           [ngClass]='{ "is-invalid": f.submitted && firstName.invalid}' required>
+                    <div *ngIf="f.submitted && firstName.invalid" class="invalid-feedback">
+                        <div *ngIf="firstName.errors.required">First name is required</div>
+                    </div>
+                </div>
+                <div class="form-group col-5">
+                    <label>Last name</label>
+                    <input type="text" name="lastName" class="form-control" #lastName="ngModel" placeholder="Last name"
+                           [(ngModel)]="model.lastName" [ngClass]='{ "is-invalid": f.submitted && lastName.invalid}' required>
+                    <div *ngIf="f.submitted && lastName.invalid" class="invalid-feedback">
+                            <div *ngIf="lastName.errors.required">Last name is required</div>
+                    </div>
+                </div>
+            </div>
+         
+            <div class="form-row">
+                <div class="form-group col-12">
+                    <label>Email</label>
+                    <input type="text" name="email" class="form-control" placeholder="email" 
+                    [(ngModel)]="model.email" #email="ngModel" [ngClass]='{"is-invalid": f.submitted && email.invalid}' email required>
+                    <div *ngIf="f.submitted && email.invalid" class="invalid-feedback">
+                        <div *ngIf="email.errors.required">El email es obligatorio</div>
+                        <div *ngIf="email.errors.email">El email es incorrecto</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col">
+                    <label>Clave</label>
+                    <input type="password" name="password" class="form-control" [(ngModel)]="model.password" #password="ngModel" [ngClass]="{ 'is-invalid': f.submitted && password.invalid }" required minlength="6">
+                    <div *ngIf="f.submitted && password.invalid" class="invalid-feedback">
+                        <div *ngIf="password.errors.required">Clave es obligatoria</div>
+                        <div *ngIf="password.errors.minlength">La clave debe tener al menos 6 caracteres</div>
+                    </div>
+                </div>
+                <div class="form-group col">
+                    <label>Confirmación de clave</label>
+                    <input type="password" name="confirmPassword" class="form-control" [(ngModel)]="model.confirmPassword" #confirmPassword="ngModel" [ngClass]="{ 'is-invalid': f.submitted && confirmPassword.invalid }" required>
+                    <div *ngIf="f.submitted && confirmPassword.invalid" class="invalid-feedback">
+                        <div *ngIf="confirmPassword.errors.required">Confirmación de clave es obligatoria.</div>
+                        <div *ngIf="confirmPassword.errors.mustMatch">Las claves deben coincidir.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group form-check">
+                    <input type="checkbox" name="acceptTerms" id="acceptTerms" class="form-check-input" [(ngModel)]="model.acceptTerms" #acceptTerms="ngModel" [ngClass]="{ 'is-invalid': f.submitted && acceptTerms.invalid }" required>
+                    <label for="acceptTerms" class="form-check-label">Aceptar términos y condiciones</label>
+                    <div *ngIf="f.submitted && acceptTerms.invalid" class="invalid-feedback">Debe aceptar los terminos y condiciones.</div>
+            </div>
+            <div class="text-center">
+                    <button class="btn btn-primary mr-1">Register</button>
+                    <button class="btn btn-secondary" type="reset">Cancel</button>
+            </div>
+        </form>
+
+    </div>
+</div>

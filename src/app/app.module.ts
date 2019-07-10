@@ -12,6 +12,8 @@ import { LoginComponent } from './pages/login/login.component';
 import { MessagesComponent } from './pages/messages/messages.component';
 import { AppRoutingModule } from './approuting.module';
 import { PageNotFoundComponent } from './pages/pagenotfound/pagenotfound.component';
+import { RegistrationComponent } from './pages/registration/registration.component';
+import { MustMatchDirective } from './directives/mustmatch.directive';
 
 const config: SocketIoConfig = {
   url: environment.wsUrl, options: {}
@@ -25,7 +27,9 @@ const config: SocketIoConfig = {
     UserlistComponent,
     LoginComponent,
     MessagesComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    RegistrationComponent,
+    MustMatchDirective
   ],
   imports: [
     BrowserModule,
