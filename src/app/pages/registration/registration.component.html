@@ -1,12 +1,12 @@
 <div class="card m-4">
-    <label>https://jasonwatmore.com/post/2019/06/15/angular-8-template-driven-forms-validation-example</label>
+    <label>'https://jasonwatmore.com/post/2019/06/15/angular-8-template-driven-forms-validation-example'</label>
     <h5 class="card-header text-center">Formulario de registro</h5>
     <div class="card-body" >
         <!-- 
             MIRAR
             novalidate indica que el formulario no se va a validar en evento onsubmit
          -->
-        <form #f="ngForm" (ngSubmit)="onSubmit()" [mustMatch]="['password', 'confirmPassword']" > 
+        <form #f="ngForm" (ngSubmit)="onSubmit()" [mustMatch]="['password', 'confirmPassword']" novalidate> 
 
             <div class="form-row">
                 <div class="form-group col-2">

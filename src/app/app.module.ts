@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 // sockets
@@ -10,10 +10,11 @@ import { ChatComponent } from './components/chat/chat.component';
 import { UserlistComponent } from './components/userlist/userlist.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MessagesComponent } from './pages/messages/messages.component';
-import { AppRoutingModule } from './approuting.module';
 import { PageNotFoundComponent } from './pages/pagenotfound/pagenotfound.component';
 import { RegistrationComponent } from './pages/registration/registration.component';
 import { MustMatchDirective } from './directives/mustmatch.directive';
+import { AppRoutingModule } from './approuting.module';
+import { ClaimsRegistrationComponent } from './pages/claims/claims.component';
 
 const config: SocketIoConfig = {
   url: environment.wsUrl, options: {}
@@ -29,13 +30,15 @@ const config: SocketIoConfig = {
     MessagesComponent,
     PageNotFoundComponent,
     RegistrationComponent,
-    MustMatchDirective
+    MustMatchDirective,
+    ClaimsRegistrationComponent
   ],
   imports: [
-    BrowserModule,
+    BrowserModule, 
+    AppRoutingModule,
     FormsModule,
-    SocketIoModule.forRoot(config),
-    AppRoutingModule
+    ReactiveFormsModule,
+    SocketIoModule.forRoot(config)
   ],
   providers: [],
   bootstrap: [AppComponent]
